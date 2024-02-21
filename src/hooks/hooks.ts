@@ -1,0 +1,30 @@
+import { Before, After, BeforeAll, AfterAll, Status } from "@cucumber/cucumber";
+import { Browser, BrowserContext, chromium } from "@playwright/test";
+import { pageFixture } from "../pages/page-fixture";
+
+let browser: Browser;
+let ctx: BrowserContext;
+
+BeforeAll(async () => {
+  browser = await chromium.launch({ headless: false });
+});
+
+Before(async function () {
+  ctx = await browser.newContext();
+  pageFixture.page = await ctx.newPage();
+});
+
+After(async function ({ pickle, result }) {
+  // screenshot - only in case of success
+  if (result?.status === Status.PASSED) {
+    const screenshot = await pageFixture.page?.screenshot({ path: `./test-result/screenshots/${pickle.name}.png`, type: "png" });
+    this.attach(screenshot!, "image/png");
+  }
+
+  await pageFixture.page?.close();
+  await ctx.close();
+});
+
+AfterAll(async () => {
+  await browser.close();
+});
