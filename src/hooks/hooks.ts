@@ -15,17 +15,17 @@ Before(async function () {
 });
 
 BeforeStep(async function ({ pickleStep }) {
-  console.info(`Before step: ${pickleStep.text}`);
+  // console.info(`Before step: ${pickleStep.text}`);
 });
 
 AfterStep(async function ({ pickleStep }) {
-  console.info(`After step: ${pickleStep.text}`);
+  // console.info(`After step: ${pickleStep.text}`);
 });
 
 After(async function ({ pickle, result }) {
   // screenshot - only in case of success
   if (result?.status === Status.PASSED) {
-    const screenshot = await pageFixture.page?.screenshot({ path: `./test-result/screenshots/${pickle.name}.png`, type: "png" });
+    const screenshot = await pageFixture.page?.screenshot({ path: `./test-results/screenshots/${pickle.name}.png`, type: "png" });
     this.attach(screenshot!, "image/png");
   }
 

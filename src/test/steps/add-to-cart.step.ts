@@ -8,7 +8,7 @@ When("User searches for a {string}", async (book: string) => {
 });
 
 When("User adds the book to the cart", async () => {
-  await pageFixture.page!.locator("//button[@color='primary']").click();
+  await pageFixture.page!.locator("button[color='primary']").click();
 });
 
 Then("cart badge should get updated", async () => {
