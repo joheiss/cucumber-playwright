@@ -1,4 +1,4 @@
-import { Before, After, BeforeAll, AfterAll, Status } from "@cucumber/cucumber";
+import { Before, After, BeforeAll, AfterAll, Status, BeforeStep, AfterStep } from "@cucumber/cucumber";
 import { Browser, BrowserContext, chromium } from "@playwright/test";
 import { pageFixture } from "../pages/page-fixture";
 
@@ -12,6 +12,14 @@ BeforeAll(async () => {
 Before(async function () {
   ctx = await browser.newContext();
   pageFixture.page = await ctx.newPage();
+});
+
+BeforeStep(async function ({ pickleStep }) {
+  console.info(`Before step: ${pickleStep.text}`);
+});
+
+AfterStep(async function ({ pickleStep }) {
+  console.info(`After step: ${pickleStep.text}`);
 });
 
 After(async function ({ pickle, result }) {
