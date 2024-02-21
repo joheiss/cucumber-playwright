@@ -1,8 +1,10 @@
 import { Before, After, BeforeAll, AfterAll, Status, BeforeStep, AfterStep } from "@cucumber/cucumber";
 import { Browser, BrowserContext } from "@playwright/test";
-import { pageFixture } from "../pages/page-fixture";
+import { fixture as fixture } from "../pages/fixture";
 import { invokeBrowser } from "../helper/browsers/browser-manager";
 import { getEnvironment } from "../helper/env/env";
+import { createLogger } from "winston";
+import { options } from "../helper/utils/logger";
 
 let browser: Browser;
 let ctx: BrowserContext;
@@ -13,9 +15,10 @@ BeforeAll(async () => {
   browser = await invokeBrowser();
 });
 
-Before(async function () {
+Before(async function ({ pickle }) {
   ctx = await browser.newContext();
-  pageFixture.page = await ctx.newPage();
+  fixture.page = await ctx.newPage();
+  fixture.logger = createLogger(options(pickle.name + pickle.id));
 });
 
 BeforeStep(async function ({ pickleStep }) {
@@ -29,14 +32,15 @@ AfterStep(async function ({ pickleStep }) {
 After(async function ({ pickle, result }) {
   // screenshot - only in case of success
   if (result?.status === Status.PASSED) {
-    const screenshot = await pageFixture.page?.screenshot({ path: `./test-results/screenshots/${pickle.name}.png`, type: "png" });
+    const screenshot = await fixture.page?.screenshot({ path: `./test-results/screenshots/${pickle.name}.png`, type: "png" });
     this.attach(screenshot!, "image/png");
   }
 
-  await pageFixture.page?.close();
+  await fixture.page?.close();
   await ctx.close();
 });
 
 AfterAll(async () => {
   await browser.close();
+  fixture.logger?.close();
 });
