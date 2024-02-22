@@ -1,8 +1,8 @@
 const report = require("multiple-cucumber-html-reporter");
 
 report.generate({
-  jsonDir: "./test-results/",
-  reportPath: "./test-results/reports/",
+  jsonDir: "test-results/",
+  reportPath: "test-results/",
   reportName: "Cucumber Playright Automation Report",
   pageTitle: "BookStore App Test Report",
   displayDuration: true,
