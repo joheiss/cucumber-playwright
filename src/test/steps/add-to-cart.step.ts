@@ -8,7 +8,7 @@ When("User searches for a {string}", async (book: string) => {
 });
 
 When("User adds the book to the cart", async () => {
-  await fixture.page!.locator("button[color='primary']").click();
+  await fixture.page!.locator("app-book-card").getByRole("button", { name: "Add to Cart" }).click();
 });
 
 Then("cart badge should get updated", async () => {

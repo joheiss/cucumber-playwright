@@ -10,7 +10,7 @@ Given("User opens the application", async () => {
 });
 
 Given("User clicks on the logon link", async () => {
-  const button = fixture.page!.getByRole("button", { name: "Login" }).first();
+  const button = fixture.page!.locator("app-nav-bar").getByRole("button", { name: "Login" });
   await button.click();
 });
 
@@ -25,20 +25,18 @@ Given("User enters a password as {string}", async (password: string) => {
 });
 
 When("User clicks the login button", async () => {
-  const button = fixture.page!.locator("button[color='primary']");
+  const button = fixture.page!.locator("app-login").getByRole("button", { name: "Login" });
   await button.click();
   await fixture.page!.waitForLoadState();
-  // console.info("Waiting for 2 seconds");
   fixture.logger?.info("Waiting for 2 seconds");
   await fixture.page!.waitForTimeout(2000);
 });
 
 Then("Login should be successful", { timeout: 60 * 1000 }, async () => {
-  const loggedInUser = fixture.page!.locator("//button[contains(@class,'mat-focus-indicator mat-menu-trigger')]//span[1]");
-  const username = await loggedInUser.textContent();
-  // console.log("username: ", username);
+  const loggedInDropdown = fixture.page!.locator("app-nav-bar").getByRole("button").filter({ hasText: "account_circle" });
+  const username = await loggedInDropdown.textContent();
   fixture.logger?.info(`username: ${username}`);
-  await expect(loggedInUser).toBeVisible();
+  await expect(loggedInDropdown).toBeVisible();
 });
 
 Then("Login should fail", { timeout: 60 * 1000 }, async () => {
