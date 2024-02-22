@@ -5,6 +5,7 @@ import { invokeBrowser } from "../helper/browsers/browser-manager";
 import { getEnvironment } from "../helper/env/env";
 import { createLogger } from "winston";
 import { options } from "../helper/utils/logger";
+import { readFileSync } from "fs";
 
 let browser: Browser;
 let ctx: BrowserContext;
@@ -16,7 +17,11 @@ BeforeAll(async () => {
 });
 
 Before(async function ({ pickle }) {
-  ctx = await browser.newContext();
+  ctx = await browser.newContext({
+    recordVideo: {
+      dir: "test-results/videos",
+    },
+  });
   fixture.page = await ctx.newPage();
   fixture.logger = createLogger(options(pickle.name + pickle.id));
 });
@@ -30,14 +35,22 @@ AfterStep(async function ({ pickleStep }) {
 });
 
 After(async function ({ pickle, result }) {
-  // screenshot - only in case of success
+  let videoPath: string | undefined;
+  let screenshot: Buffer | undefined;
+  // screenshot & videos - only in case of success
   if (result?.status === Status.PASSED) {
-    const screenshot = await fixture.page?.screenshot({ path: `./test-results/screenshots/${pickle.name}.png`, type: "png" });
-    this.attach(screenshot!, "image/png");
+    screenshot = await fixture.page?.screenshot({ path: `./test-results/screenshots/${pickle.name}.png`, type: "png" });
+    videoPath = await fixture.page?.video()?.path();
   }
 
   await fixture.page?.close();
   await ctx.close();
+
+  // screenshot & videos - after close because it takes a long time
+  if (result?.status === Status.PASSED) {
+    this.attach(screenshot!, "image/png");
+    this.attach(readFileSync(videoPath!), "video/webm");
+  }
 });
 
 AfterAll(async () => {
