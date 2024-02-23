@@ -30,4 +30,9 @@ test.describe("Try this locators...", () => {
     // const isVisible = ;
     expect(await loggedInDropdown.isEnabled()).toBeTruthy();
   });
+
+  test("try register button", async ({ page }) => {
+    await page.goto("https://bookcart.azurewebsites.net/register");
+    await page.locator("mat-card-actions").getByRole("button", { name: "Register" }).click();
+  });
 });

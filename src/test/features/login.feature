@@ -10,6 +10,7 @@ Feature: User Authentication
     When User clicks the login button
     Then Login should be successful
 
+  @fail
   Scenario: Unsuccessful login
     Given User enters a username as "anything"
     And User enters a password as "topsecret"
