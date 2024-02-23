@@ -22,6 +22,13 @@ Before(async function ({ pickle }) {
       dir: "test-results/videos",
     },
   });
+  await ctx.tracing.start({
+    name: pickle.name + pickle.id,
+    title: pickle.name,
+    sources: true,
+    screenshots: true,
+    snapshots: true,
+  });
   fixture.page = await ctx.newPage();
   fixture.logger = createLogger(options(pickle.name + pickle.id));
 });
@@ -35,6 +42,7 @@ AfterStep(async function ({ pickleStep }) {
 });
 
 After(async function ({ pickle, result }) {
+  const tracePath = `./test-results/trace/${pickle.id}.zip`;
   let videoPath: string | undefined;
   let screenshot: Buffer | undefined;
   // screenshot & videos - only in case of success
@@ -42,7 +50,7 @@ After(async function ({ pickle, result }) {
     screenshot = await fixture.page?.screenshot({ path: `./test-results/screenshots/${pickle.name}.png`, type: "png" });
     videoPath = await fixture.page?.video()?.path();
   }
-
+  await ctx.tracing.stop({ path: tracePath });
   await fixture.page?.close();
   await ctx.close();
 
@@ -50,6 +58,8 @@ After(async function ({ pickle, result }) {
   if (result?.status === Status.PASSED) {
     this.attach(screenshot!, "image/png");
     this.attach(readFileSync(videoPath!), "video/webm");
+    const traceFileLink = `<a href="https://trace.playwright.dev/">Open ${tracePath}</a>`;
+   this.attach(`Trace file: ${traceFileLink}`, "text/html");
   }
 });
 
